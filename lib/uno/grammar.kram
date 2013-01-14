@@ -1,0 +1,54 @@
+root Exprs
+
+WS <- [\s]+
+    | WS? Comment WS?
+
+Comment <- "#" [^\n]+
+
+Rec <- "{" WS?  RecFields "}"
+     | "{" WS?  "}"  @recempty
+
+RecFields <- RecField WS?
+           | RecFields:rest RecSep WS? RecField:field WS?  @recmerge
+
+RecSep <- "," | [\n]+
+
+RecField <- Ident:name ":=" WS? Expr:value  @recupdate
+          | Ident:name ":~" WS? Block:value @recmethod
+          | Ident:name ":"  WS? Expr:value  @recset
+          | "-" Ident:name @recremove
+          | Expr:value     @recsplat
+
+Ident <- [A-Za-z_] [A-Za-z0-9_]*
+Num   <- [\d]+
+
+String <- ["] [^"]+ ["]  @str
+
+Block <- "[" WS?  BlockContent "]"
+BlockContent <- BlockParams:params? Exprs:code  @block
+
+BlockParams <- "|" Params "|" WS?
+Params <- Ident:name WS? Expr:cond?  @param
+        > Params:left "," WS? Params:right  @params  %left
+
+Args <- Expr:value  @arg
+      | Args:rest "," WS?  Expr:value  @arg
+
+Expr <- Rec
+      | Block 
+      | Num:value  @num
+      | String
+      | Ident:name  @var
+      > Expr:base "." Ident:name  @access  %left
+      | Expr:base ":" Ident:name  @method  %left
+      > Expr:expr "(" WS?  Args:args? WS?  ")"  @call  %left
+      > Expr:left WS?  "*":op WS?  Expr:right  @op  %left
+      | Expr:left WS?  "/":op WS?  Expr:right  @op  %left
+      > Expr:left WS?  "+":op WS?  Expr:right  @op  %left
+      | Ident:name WS?  "=" WS? Expr:value  @assign  %left
+
+Exprs <- Expr WS?
+       | Expr:left Term WS?  Exprs:right  @exprs
+
+Term <- [ ]* ";"
+      | [ ]* Comment? [\n]
