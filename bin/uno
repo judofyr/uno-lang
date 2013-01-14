@@ -3,6 +3,7 @@ $LOAD_PATH << File.expand_path('../../lib', __FILE__)
 $LOAD_PATH << File.expand_path('../../../kramer/lib', __FILE__)
 
 require 'uno/parser'
+require 'uno/interpreter'
 
 unless file = ARGV.shift
   puts "usage: #$0 FILE"
@@ -10,5 +11,6 @@ unless file = ARGV.shift
 end
 
 require 'pp'
-pp Uno::Parser.parse(File.read(file))
-
+exp = Uno::Parser.parse(File.read(file))
+itr = Uno::Interpreter.new
+itr.process(exp)
