@@ -1,2 +1,3 @@
-puts("Hello world!")
+a = "Hello world!"
+puts(a)
 

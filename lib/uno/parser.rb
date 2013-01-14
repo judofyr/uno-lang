@@ -97,6 +97,11 @@ module Uno
       rest = process(node[:rest].val) if node[:rest]
       [*rest, process(node[:value].val)]
     end
+
+    ## Exprs
+    def process_exprs(node)
+      [:exprs, process(node[:left].val), process(node[:right].val)]
+    end
   end
 end
 
