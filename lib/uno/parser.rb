@@ -27,6 +27,11 @@ module Uno
       [:integer, node[:value].val.to_i]
     end
 
+    ## Strings
+    def process_str(node)
+      [:string, node[:value].val]
+    end
+
     ## Records
     def process_recempty(node)
       [:recempty]

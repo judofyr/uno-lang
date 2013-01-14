@@ -22,7 +22,7 @@ RecField <- Ident:name ":=" WS? Expr:value  @recupdate
 Ident <- [A-Za-z_] [A-Za-z0-9_]*
 Num   <- [\d]+
 
-String <- ["] [^"]+ ["]  @str
+String <- ["] [^"]+:value ["]  @str
 
 Block <- "[" WS?  BlockContent "]"
 BlockContent <- BlockParams:params? Exprs:code  @block

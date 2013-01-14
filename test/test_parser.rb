@@ -8,6 +8,11 @@ module Uno
       assert_equal [:integer, 1], exp
     end
 
+    def test_string
+      exp = Parser.parse('"hello"')
+      assert_equal [:string, "hello"], exp
+    end
+
     def test_assign
       exp = Parser.parse("a = 1")
       assert_equal [:assign, "a", [:integer, 1]], exp
@@ -34,6 +39,11 @@ module Uno
 
       exp = Parser.parse("point:translate(1, 2)")
       assert_equal [:method, [:var, "point"], "translate", [[:integer, 1], [:integer, 2]]], exp
+    end
+
+    def test_calls
+      exp = Parser.parse('puts("Hello")')
+      assert_equal [:call, [:var, "puts"], [[:string, "Hello"]]], exp
     end
   end
 end
