@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+$LOAD_PATH << File.expand_path('../../lib', __FILE__)
+$LOAD_PATH << File.expand_path('../../../kramer/lib', __FILE__)
+
+require 'uno/parser'
+
+unless file = ARGV.shift
+  puts "usage: #$0 FILE"
+  exit 1
+end
+
+require 'pp'
+pp Uno::Parser.parse(File.read(file))
+
