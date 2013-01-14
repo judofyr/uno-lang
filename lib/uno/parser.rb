@@ -93,9 +93,33 @@ module Uno
       [*rest, process(node[:value].val)]
     end
 
+    ## Ops
+    def process_op(node)
+      [:op, node[:op].val, process(node[:left].val), process(node[:right].val)]
+    end
+
     ## Block
     def process_block(node)
-      [:block, process(node[:code].val)]
+      params = process(node[:params].val)
+      [:block, process(node[:code].val), params]
+    end
+
+    def process_params(node)
+      left = process(node[:left].val)
+      right = process(node[:right].val)
+
+      [left, right].inject([]) do |memo, arr|
+        if arr[0] == :param
+          memo << arr
+        else
+          memo.concat(arr)
+        end
+      end
+    end
+
+    def process_param(node)
+      cond = process(node[:cond].val) if node[:cond]
+      [:param, node[:name].val, cond]
     end
 
     ## Exprs

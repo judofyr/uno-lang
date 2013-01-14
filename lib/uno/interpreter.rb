@@ -18,20 +18,32 @@ module Uno
     end
 
     class Block
-      def initialize(block, code)
-        @block = block
+      def initialize(scope, code, params)
+        @scope = scope
         @code = code
+        @params = params
       end
 
-      def call(int)
+      def call(int, *args)
+        scope = Scope.new(@scope)
+
+        @params.each_with_index do |(type, name, _), idx|
+          scope[name] = args[idx]
+        end
+
+        old_scope = int.scope
+        int.scope = scope
         int.process(@code)
+      ensure
+        int.scope = old_scope
       end
     end
 
+    attr_accessor :scope
+
     def initialize
-      @scope = {
-        "puts" => proc { |int, *args| puts(*args) }
-      }
+      @scope = Scope.new
+      @scope["puts"] = proc { |int, *args| puts(*args) }
     end
 
     def process(exp)
@@ -64,8 +76,12 @@ module Uno
       base.call(self, *args)
     end
 
-    def process_block(code)
-      Block.new(@scope, code)
+    def process_op(type, left, right)
+      process(left).send(type, process(right))
+    end
+
+    def process_block(code, params)
+      Block.new(@scope, code, params)
     end
   end
 end

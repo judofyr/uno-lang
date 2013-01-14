@@ -1,4 +1,3 @@
-b = "Hello world!"
-a = [ b ]
-puts(a(), 2)
+plus = [ |a, b| a + b ]
+puts(plus(1, 2))
 
