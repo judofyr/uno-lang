@@ -1,8 +1,36 @@
 module Uno
   class Interpreter
+    class Scope
+      def initialize(parent = nil)
+        @values = {}
+        @parent = parent
+      end
+
+      def [](key)
+        bound = @values.has_key?(key)
+        raise "Can't find #{key}" if !bound && !@parent
+        bound ? @values[key] : @parent[key]
+      end
+
+      def []=(key, value)
+        @values[key] = value
+      end
+    end
+
+    class Block
+      def initialize(block, code)
+        @block = block
+        @code = code
+      end
+
+      def call(int)
+        int.process(@code)
+      end
+    end
+
     def initialize
       @scope = {
-        "puts" => proc { |val| puts(val) }
+        "puts" => proc { |int, *args| puts(*args) }
       }
     end
 
@@ -22,13 +50,22 @@ module Uno
       str
     end
 
+    def process_integer(val)
+      val
+    end
+
     def process_assign(name, value)
       @scope[name] = process(value)
     end
 
     def process_call(base, args)
       base = process(base)
-      base.call(*args.map { |x| process(x) })
+      args = args.map { |x| process(x) }
+      base.call(self, *args)
+    end
+
+    def process_block(code)
+      Block.new(@scope, code)
     end
   end
 end

@@ -1,3 +1,4 @@
-a = "Hello world!"
-puts(a)
+b = "Hello world!"
+a = [ b ]
+puts(a(), 2)
 

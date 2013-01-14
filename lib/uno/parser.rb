@@ -77,12 +77,7 @@ module Uno
     end
 
     def process_call(node)
-      if node[:args]
-        args = process(node[:args].val)
-      else
-        args = []
-      end
-
+      args = node[:args] ? process(node[:args].val) : []
       expr = process(node[:expr].val)
 
       if expr[0] == :method
@@ -96,6 +91,11 @@ module Uno
     def process_arg(node)
       rest = process(node[:rest].val) if node[:rest]
       [*rest, process(node[:value].val)]
+    end
+
+    ## Block
+    def process_block(node)
+      [:block, process(node[:code].val)]
     end
 
     ## Exprs
