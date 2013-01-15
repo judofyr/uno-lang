@@ -66,6 +66,36 @@ module Uno
       val
     end
 
+    def process_recset(name, value)
+      { name => [process(value)] }
+    end
+
+    def process_recmerge(left, right)
+      left = process(left)
+      right = process(right)
+
+      if right.is_a?(String)  # remove
+        left = left.dup
+        left[right] = left[right][0..-2]
+        left
+      else
+        left.merge(right) do |k, v1, v2|
+          [*v1, *v2]
+        end
+      end
+    end
+
+    def process_recremove(field)
+      field
+    end
+
+    def process_access(base, name)
+      base = process(base)
+      pp base
+      values = base[name] or raise "Missing field: #{name}"
+      values.last
+    end
+
     def process_assign(name, value)
       @scope[name] = process(value)
     end

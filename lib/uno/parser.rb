@@ -53,6 +53,10 @@ module Uno
       [:recsplat, process(node[:value].val)]
     end
 
+    def process_recremove(node)
+      [:recremove, node[:name].val]
+    end
+
     def process_recmethod(node)
       [:recmethod, node[:name].val, process(node[:value].val)]
     end
