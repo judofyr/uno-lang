@@ -68,46 +68,38 @@ module Uno
       val
     end
 
-    def process_recset(name, value)
-      { name => [process(value)] }
-    end
-
-    def process_recmerge(left, right)
-      left = process(left)
-      right = process(right)
-
-      if right.is_a?(String)  # remove
-        left = left.dup
-        left[right] = left[right][0..-2]
-        left
-      else
-        left.merge(right) do |k, v1, v2|
-          [*v1, *v2]
-        end
-      end
-    end
-
-    def process_recremove(field)
-      field
-    end
-
-    def process_recsplat(expr)
-      process(expr)
-    end
-
-    def process_recupdate(field, value)
-      { field => [process(value)] }
-    end
-
     def process_recempty
       {}
     end
 
-    def process_recmethod(name, block)
-      block = process(block)
-      block.params.unshift([:param, "self", nil])
-      block.params.unshift([:param, "env", nil])
-      { name => [block] }
+    def process_record(value, rec = nil)
+      rec ||= Hash.new { |h, k| h[k] = [] }
+
+      case value[0]
+      when :recset
+        rec[value[1]] << process(value[2])
+      when :recmethod
+        block = process(value[2])
+        block.params.unshift([:param, "self", nil])
+        block.params.unshift([:param, "env", nil])
+        rec[value[1]] << block
+      when :recremove
+        rec[value[1]].pop
+      when :recupdate
+        rec[value[1]].pop
+        rec[value[1]] << process(value[2])
+      when :recsplat
+        process(value[1]).each do |key, value|
+          rec[key].concat(value)
+        end
+      when :recmerge
+        process_record(value[1], rec)
+        process_record(value[2], rec)
+      else
+        raise "Can't handle: #{value[0]}"
+      end
+
+      rec
     end
 
     def process_access(base, name)

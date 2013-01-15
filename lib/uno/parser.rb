@@ -37,6 +37,10 @@ module Uno
       [:recempty]
     end
 
+    def process_record(node)
+      [:record, process(node[:value].val)]
+    end
+
     def process_recmerge(node)
       [:recmerge, process(node[:rest].val), process(node[:field].val)]
     end

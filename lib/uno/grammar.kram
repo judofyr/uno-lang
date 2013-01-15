@@ -5,8 +5,8 @@ WS <- [\s]+
 
 Comment <- "#" [^\n]+
 
-Rec <- "{" WS?  RecFields "}"
-     | "{" WS?  "}"  @recempty
+Rec <- "{" WS?  RecFields:value "}"  @record
+     | "{" WS?                  "}"  @recempty
 
 RecFields <- RecField WS?
            | RecFields:rest RecSep WS? RecField:field WS?  @recmerge
