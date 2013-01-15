@@ -1,3 +1,8 @@
 plus = [ |a, b| a + b ]
-puts(plus(1, 2))
+
+a = plus(2, 0)
+
+if a > 3 [
+  puts("Over 3")
+]
 

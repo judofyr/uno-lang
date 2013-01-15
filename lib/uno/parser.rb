@@ -122,6 +122,12 @@ module Uno
       [:param, node[:name].val, cond]
     end
 
+    ## If
+
+    def process_if(node)
+      [:if, process(node[:cond].val), process(node[:body].val)]
+    end
+
     ## Exprs
     def process_exprs(node)
       [:exprs, process(node[:left].val), process(node[:right].val)]

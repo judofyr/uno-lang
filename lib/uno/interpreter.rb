@@ -83,6 +83,10 @@ module Uno
     def process_block(code, params)
       Block.new(@scope, code, params)
     end
+
+    def process_if(cond, body)
+      process(body) if process(cond)
+    end
   end
 end
 

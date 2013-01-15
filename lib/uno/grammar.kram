@@ -45,7 +45,10 @@ Expr <- Rec
       > Expr:left WS?  "*":op WS?  Expr:right  @op  %left
       | Expr:left WS?  "/":op WS?  Expr:right  @op  %left
       > Expr:left WS?  "+":op WS?  Expr:right  @op  %left
-      | Ident:name WS?  "=" WS? Expr:value  @assign  %left
+      > Expr:left WS?  ">":op WS?  Expr:right  @op  %left
+
+      > Ident:name WS?  "=" WS?  Expr:value  @assign  %left
+      | "if" WS  Expr:cond WS?  "[" WS? Exprs:body  "]"  @if
 
 Exprs <- Expr WS?
        | Expr:left Term WS?  Exprs:right  @exprs
