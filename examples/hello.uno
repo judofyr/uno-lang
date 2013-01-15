@@ -1,8 +1,27 @@
-plus = [ |a, b| a + b ]
+ClassScope = [ |self| self._class.methods ]
 
-a = plus(2, 0)
+Object = {
+  _scope: [ |self| self ]
+  methods: {}
+  new:~ [ |rec|
+    { rec, _class: self, _scope: ClassScope }
+  ]
+  sub:~ [ |rec|
+    { self, methods: { self.methods, rec } }
+  ]
+}
 
-if a > 3 [
-  puts("Over 3")
-]
+Person = Object:sub({
+  name:~ [ self.name ]
+})
+
+SillyPerson = Object:sub({
+  name:~ [ "Silly" ]
+})
+
+me = Person:new({name: "Magnus"})
+puts(me:name)
+
+you = SillyPerson:new({})
+puts(you:name)
 

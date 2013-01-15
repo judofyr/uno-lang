@@ -104,7 +104,8 @@ module Uno
 
     ## Block
     def process_block(node)
-      params = process(node[:params].val)
+      params = node[:params] ? process(node[:params].val) : []
+      params = [params] if params[0] == :param
       [:block, process(node[:code].val), params]
     end
 

@@ -18,6 +18,8 @@ module Uno
     end
 
     class Block
+      attr_reader :code,  :params
+
       def initialize(scope, code, params)
         @scope = scope
         @code = code
@@ -89,10 +91,31 @@ module Uno
       field
     end
 
+    def process_recsplat(expr)
+      process(expr)
+    end
+
+    def process_recupdate(field, value)
+      { field => [process(value)] }
+    end
+
+    def process_recempty
+      {}
+    end
+
+    def process_recmethod(name, block)
+      block = process(block)
+      block.params.unshift([:param, "self", nil])
+      block.params.unshift([:param, "env", nil])
+      { name => [block] }
+    end
+
     def process_access(base, name)
       base = process(base)
-      pp base
-      values = base[name] or raise "Missing field: #{name}"
+      values = base[name]
+      if !values
+        raise "Missing field: #{name}"
+      end
       values.last
     end
 
@@ -104,6 +127,14 @@ module Uno
       base = process(base)
       args = args.map { |x| process(x) }
       base.call(self, *args)
+    end
+
+    def process_method(base, name, args)
+      base = process(base)
+      env = base["_scope"].last.call(self, base)
+      block = env[name].last
+      args = args.map { |x| process(x) }
+      block.call(self, env, base, *args)
     end
 
     def process_op(type, left, right)
