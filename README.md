@@ -110,10 +110,12 @@ have a bit of sugar to simplify method calls and method definitions.
 A pattern in Uno is just a block:
 
 ```
-Point = [ |rec|
-  rec.x
-  rec.y
-]
+Point = {
+  check: [ |rec|
+    rec.x
+    rec.y
+  ]
+}
 ```
 
 You can then use this to match inside other blocks:
@@ -121,7 +123,7 @@ You can then use this to match inside other blocks:
 ```
 length = [
   |rec Point|  Math.sqrt(rec.x ** 2 + rec.y ** 2)
-  |str String| String.length(str)
+  |str Str|    Str.length(str)
 ]
 
 p(length({ x: 1, y: 2 }))

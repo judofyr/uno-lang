@@ -7,7 +7,7 @@ Object = {
     { rec, _class: self, _scope: ClassScope }
   ]
   sub:~ [ |rec|
-    { self, methods: { self.methods, rec } }
+    { self, methods:= { self.methods, rec } }
   ]
 }
 
@@ -19,9 +19,28 @@ SillyPerson = Object:sub({
   name:~ [ "Silly" ]
 })
 
+sayName = [ |person|
+  puts(person:name)
+]
+
 me = Person:new({name: "Magnus"})
-puts(me:name)
+sayName(me)
 
 you = SillyPerson:new({})
-puts(you:name)
+sayName(you)
+
+
+Point = {
+  check: [ |rec|
+    rec.x; rec.y
+  ]
+}
+
+foo = [
+  |rec Point| rec.x + rec.y
+  |rec|       10
+]
+
+puts(foo({ x: 1, y: 2 }))
+puts(foo({ z: 1, y: 2 }))
 

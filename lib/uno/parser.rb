@@ -107,10 +107,21 @@ module Uno
     end
 
     ## Block
+
     def process_block(node)
+      vars = process(node[:vars].val)
+      [:block, vars]
+    end
+
+    def process_bvariants(node)
+      rest = process(node[:rest].val) if node[:rest]
+      [*rest, process(node[:value].val)]
+    end
+
+    def process_bvariant(node)
       params = node[:params] ? process(node[:params].val) : []
       params = [params] if params[0] == :param
-      [:block, process(node[:code].val), params]
+      [:bvariant, process(node[:code].val), params]
     end
 
     def process_params(node)

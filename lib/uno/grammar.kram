@@ -24,8 +24,9 @@ Num   <- [\d]+
 
 String <- ["] [^"]+:value ["]  @str
 
-Block <- "[" WS?  BlockContent "]"
-BlockContent <- BlockParams:params? Exprs:code  @block
+Block <- "[" WS?  BlockVariants:vars "]"  @block
+BlockVariants <- BlockVariants:rest?  BlockVariant:value  @bvariants
+BlockVariant <- BlockParams:params? Exprs:code  @bvariant
 
 BlockParams <- "|" Params "|" WS?
 Params <- Ident:name WS? Expr:cond?  @param

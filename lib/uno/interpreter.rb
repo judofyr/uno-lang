@@ -18,26 +18,57 @@ module Uno
     end
 
     class Block
-      attr_reader :code,  :params
-
-      def initialize(scope, code, params)
+      attr_reader :scope, :variants
+      def initialize(scope, variants)
         @scope = scope
+        @variants = variants
+      end
+
+      def call(int, *args)
+        @variants.each do |variant|
+          begin
+            variant.check(int, *args)
+          rescue
+            next
+          end
+
+          begin
+            scope = Scope.new(@scope)
+            old_scope = int.scope
+            int.scope = scope
+            return variant.call(int, *args)
+          ensure
+            int.scope = old_scope
+          end
+        end
+      end
+    end
+
+    class BVariant
+      attr_reader :code, :params
+      def initialize(code, params)
         @code = code
         @params = params
       end
 
-      def call(int, *args)
-        scope = Scope.new(@scope)
+      def check(int, *args)
+        @params.each_with_index do |(type, name, req), idx|
+          if req
+            rec = int.process(req)
+            checker = rec["check"].last
+            checker.call(int, args[idx])
+          end
+        end
+      end
 
-        @params.each_with_index do |(type, name, _), idx|
+      def call(int, *args)
+        scope = int.scope
+
+        @params.each_with_index do |(type, name, req), idx|
           scope[name] = args[idx]
         end
 
-        old_scope = int.scope
-        int.scope = scope
         int.process(@code)
-      ensure
-        int.scope = old_scope
       end
     end
 
@@ -80,8 +111,9 @@ module Uno
         rec[value[1]] << process(value[2])
       when :recmethod
         block = process(value[2])
-        block.params.unshift([:param, "self", nil])
-        block.params.unshift([:param, "env", nil])
+        bvar = block.variants[0]
+        bvar.params.unshift([:param, "self", nil])
+        bvar.params.unshift([:param, "env", nil])
         rec[value[1]] << block
       when :recremove
         rec[value[1]].pop
@@ -105,7 +137,7 @@ module Uno
     def process_access(base, name)
       base = process(base)
       values = base[name]
-      if !values
+      if values.empty?
         raise "Missing field: #{name}"
       end
       values.last
@@ -133,8 +165,13 @@ module Uno
       process(left).send(type, process(right))
     end
 
-    def process_block(code, params)
-      Block.new(@scope, code, params)
+    def process_block(vars)
+      vars = vars.map { |x| process(x) }
+      Block.new(@scope, vars)
+    end
+
+    def process_bvariant(code, params)
+      BVariant.new(code, params)
     end
 
     def process_if(cond, body)
