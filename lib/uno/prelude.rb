@@ -17,6 +17,16 @@ module Uno
     define :puts, proc { |int, *args|
       puts(*args)
     }
+
+    define :Str, record.tap { |r|
+      r["check"] << proc do |int, value|
+        raise unless value.is_a?(String)
+      end
+
+      r["length"] << proc do |int, value|
+        value.length
+      end
+    }
   end
 end
 

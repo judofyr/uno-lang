@@ -38,9 +38,12 @@ Point = {
 
 foo = [
   |rec Point| rec.x + rec.y
+  |rec Str|   5
   |rec|       10
 ]
 
 puts(foo({ x: 1, y: 2 }))
+puts(foo("Hello"))
 puts(foo({ z: 1, y: 2 }))
+puts(Str.length("Hello"))
 
