@@ -1,3 +1,5 @@
+require 'uno/prelude'
+
 module Uno
   class Interpreter
     class Scope
@@ -76,7 +78,9 @@ module Uno
 
     def initialize
       @scope = Scope.new
-      @scope["puts"] = proc { |int, *args| puts(*args) }
+      Prelude.defs.each do |name, value|
+        @scope[name.to_s] = value
+      end
     end
 
     def process(exp)
@@ -104,7 +108,7 @@ module Uno
     end
 
     def process_record(value, rec = nil)
-      rec ||= Hash.new { |h, k| h[k] = [] }
+      rec ||= Prelude.record
 
       case value[0]
       when :recset
