@@ -21,6 +21,8 @@ module Uno
 
     class Block
       attr_reader :scope, :variants
+      attr_accessor :name
+
       def initialize(scope, variants)
         @scope = scope
         @variants = variants
@@ -36,6 +38,7 @@ module Uno
 
           begin
             scope = Scope.new(@scope)
+            scope["_name"] = @name if @name
             old_scope = int.scope
             int.scope = scope
             return variant.call(int, *args)
@@ -115,6 +118,7 @@ module Uno
         rec[value[1]] << process(value[2])
       when :recmethod
         block = process(value[2])
+        block.name = value[1]
         bvar = block.variants[0]
         bvar.params.unshift([:param, "self", nil])
         bvar.params.unshift([:param, "env", nil])
@@ -152,8 +156,18 @@ module Uno
     end
 
     def process_call(base, args)
-      base = process(base)
       args = args.map { |x| process(x) }
+
+      if base == [:var, "super"]
+        env = @scope["env"]
+        base = @scope["self"]
+        name = @scope["_name"]
+        env = env.dup
+        env[name] = env[name][0..-2]
+        return env[name].last.call(self, env, base, *args)
+      end
+
+      base = process(base)
       base.call(self, *args)
     end
 

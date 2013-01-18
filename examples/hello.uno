@@ -15,8 +15,8 @@ Person = Object:sub({
   name:~ [ self.name ]
 })
 
-SillyPerson = Object:sub({
-  name:~ [ "Silly" ]
+SillyPerson = Person:sub({
+  name:~ [ "Silly " + super() ]
 })
 
 sayName = [ |person|
@@ -26,7 +26,7 @@ sayName = [ |person|
 me = Person:new({name: "Magnus"})
 sayName(me)
 
-you = SillyPerson:new({})
+you = SillyPerson:new({name: "Magnus"})
 sayName(you)
 
 
